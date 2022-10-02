@@ -1,4 +1,38 @@
 {
+    SDL
+    Memcheck:Leak
+    ...
+    obj:/usr/lib/x86_64-linux-gnu/libSDL*
+}
+
+{
+    NVidia
+    Memcheck:Leak
+    ...
+    obj:/usr/lib/x86_64-linux-gnu/libnvidia*
+}
+
+
+
+
+{
+    X11
+    Memcheck:Leak
+    ...
+    obj:/usr/lib/x86_64-linux-gnu/libX11*
+}
+
+
+{
+    XCB
+    Memcheck:Param
+    sendmsg(msg.msg_iov[0])
+    ...
+    obj:/usr/lib/x86_64-linux-gnu/libxcb*
+}
+
+
+{
    <insert_a_suppression_name_here>
    Memcheck:Leak
    match-leak-kinds: definite

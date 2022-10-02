@@ -2,11 +2,14 @@
 #include <SDL2/SDL_error.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_video.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
 
 #include "util.h"
+#include "image.h"
+#include "sprite.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -14,9 +17,23 @@ const int SCREEN_HEIGHT = 480;
 typedef struct
 {
     SDL_Window* window;
-    SDL_Surface* surface;
     SDL_Renderer* renderer;
 } App;
+
+SDL_Window *app_window(App *app)
+{
+    return app->window;
+}
+
+SDL_Surface *app_screen(App *app)
+{
+    return SDL_GetWindowSurface(app_window(app));
+}
+
+SDL_Renderer *app_renderer(App *app)
+{
+    return app->renderer;
+}
 
 App* app_create()
 {
@@ -35,7 +52,7 @@ App* app_create()
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
         SDL_WINDOW_SHOWN
-    );
+    ); 
 
     if (app->window == NULL)
     {
@@ -54,27 +71,15 @@ App* app_create()
     if (app->renderer == NULL)
     {
         printf("Unable to load renderer. SDL_Error: %s\n", SDL_GetError());
-        return 0;
+        return NULL;
     }
-
-    app->surface = SDL_GetWindowSurface(app->window);
 
     return app;
 }
 
-SDL_Window *app_window(App *app)
+void app_render_sprite(App *app, Sprite *sprite)
 {
-    return app->window;
-}
-
-SDL_Surface *app_surface(App *app)
-{
-    return app->surface;
-}
-
-SDL_Renderer *app_renderer(App *app)
-{
-    return app->renderer;
+    sprite_render(app_renderer(app), sprite);
 }
 
 void app_destroy(App* app)
