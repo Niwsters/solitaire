@@ -5,30 +5,43 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <pthread.h>
 
-const char *fifo_path = "./fifo-test";
+#include "util.h"
 
+const char *pipe_path = "./pipe-test";
+
+char BUFFER[80];
 char *pipe_next()
 {
-    char *msg = malloc(80);
-    int fd = open(fifo_path, O_RDONLY);
-    read(fd, msg, sizeof(msg));
+    int fd = open(pipe_path, O_RDONLY);
+    read(fd, BUFFER, sizeof(BUFFER));
     close(fd);
+
+    char *msg = malloc(strlen(BUFFER));
+    strcpy(msg, BUFFER);
     return msg;
 }
 
-int main()
+void *pipe_read(void *vargp)
 {
-    // Creating the named file(FIFO)
-    // mkfifo(<pathname>, <permission>)
-    mkfifo(fifo_path, 0666);
-
-    while (1)
+    while (true)
     {
         char *msg = pipe_next();
-        // Print the read message
-        printf("SBCL: %s\n", msg);
+        printf("Pipe: %s\n", msg);
+        freen(msg);
+
         sleep(1/60);
     }
-    return 0;
+    return NULL;
+}
+
+pthread_t pipe_start()
+{
+    mkfifo(pipe_path, 0666);
+
+    pthread_t thread;
+    pthread_create(&thread, NULL, pipe_read, NULL);
+    return thread;
 }

@@ -6,12 +6,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <string.h>
+#include <pthread.h>
 
 #include "app.h"
 #include "sprite.h"
 #include "image.h"
 #include "util.h"
 #include "texture.h"
+#include "pipe.h"
 
 
 enum CARD_SUIT
@@ -71,13 +74,8 @@ Image *card_image(int suit, int value)
     return CARDS[suit][value];
 }
 
-int main()
+void *input(void *vargp)
 {
-    App *app = app_create();
-
-    SDL_Texture *texture = texture_load(app_renderer(app), app_screen(app), "./data/bonded.png");
-    load_cards(texture);
-
     SDL_Event e;
     bool quit = false;
     while (quit == false)
@@ -87,6 +85,24 @@ int main()
             if (e.type == SDL_QUIT)
                 quit = true;
         }
+        sleep(1/60);
+    }
+
+    return NULL;
+}
+
+void *loop(void *vargp)
+{
+    App *app = app_create();
+    SDL_Texture *texture = texture_load(app_renderer(app), app_screen(app), "./data/bonded.png");
+    load_cards(texture);
+
+    while (true)
+    {
+        char *msg = pipe_next();
+        if (strlen(msg) > 0)
+            printf("SBCL: %s\n", msg);
+        freen(msg);
 
         SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
         SDL_RenderClear(app_renderer(app));
@@ -98,6 +114,23 @@ int main()
 
     destroy_cards();
     app_destroy(app);
+    return NULL;
+}
 
+pthread_t create_thread(void (*func), void *input)
+{
+    pthread_t thread;
+    pthread_create(&thread, NULL, func, input);
+    return thread;
+}
+
+int main()
+{
+    pthread_t thread_input = create_thread(input, NULL);
+    pthread_t thread_loop = create_thread(loop, NULL);
+
+    pthread_join(thread_input, NULL);
+
+    exit(0);
     return 0;
 }

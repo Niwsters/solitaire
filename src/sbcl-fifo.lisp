@@ -4,13 +4,13 @@
 (in-package :sbcl-fifo)
 
 (defun send (msg)
-  (with-open-file (fifo "./fifo-test"
+  (with-open-file (fifo "./pipe-test"
                         :direction :output
                         :if-exists :supersede)
     (format fifo msg)))
 
 (defun run ()
-  (send "oh hi"))
+  (send "2 12 30 50"))
 
 (defpackage :main
   (:use :cl :sbcl-fifo))
