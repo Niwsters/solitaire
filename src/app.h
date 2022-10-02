@@ -12,5 +12,6 @@ SDL_Window *app_window(App *app);
 SDL_Surface *app_screen(App *app);
 SDL_Renderer *app_renderer(App *app);
 void app_render_sprite(App *app, Sprite *sprite);
+void app_render_image(App *app, Image *image, double x, double y);
 
 #endif

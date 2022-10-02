@@ -1,15 +1,16 @@
 (defpackage :sbcl-fifo
   (:use :cl)
-  (:export :run))
+  (:export :run :send))
 (in-package :sbcl-fifo)
 
+(defun send (msg)
+  (with-open-file (fifo "./fifo-test"
+                        :direction :output
+                        :if-exists :supersede)
+    (format fifo msg)))
+
 (defun run ()
-  (with-open-file (fifo "/tmp/fifo-test" :if-does-not-exist :create)
-    (loop
-      (when (or (listen fifo)
-                (progn (sleep 0.1)
-                       (listen fifo)))
-        (format t "From C: ~A~%" (read-line fifo))))))
+  (send "oh hi"))
 
 (defpackage :main
   (:use :cl :sbcl-fifo))

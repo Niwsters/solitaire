@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "util.h"
 #include "image.h"
@@ -46,7 +47,7 @@ App* app_create()
     }
 
     app->window = SDL_CreateWindow(
-        "SDL Tutorial",
+        "Solitaire",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH,
@@ -80,6 +81,11 @@ App* app_create()
 void app_render_sprite(App *app, Sprite *sprite)
 {
     sprite_render(app_renderer(app), sprite);
+}
+
+void app_render_image(App *app, Image *image, double x, double y)
+{
+    image_render(app_renderer(app), image, round(x), round(y));
 }
 
 void app_destroy(App* app)
