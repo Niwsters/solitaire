@@ -37,11 +37,7 @@ void *pipe_read(void *vargp)
     return NULL;
 }
 
-pthread_t pipe_start()
+void pipe_init()
 {
     mkfifo(pipe_path, 0666);
-
-    pthread_t thread;
-    pthread_create(&thread, NULL, pipe_read, NULL);
-    return thread;
 }

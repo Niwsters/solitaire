@@ -164,8 +164,10 @@ pthread_t create_thread(void (*func), void *input)
 
 int main()
 {
-    pthread_t thread_input = create_thread(input, NULL);
+    pipe_init();
+
     pthread_t thread_loop = create_thread(loop, NULL);
+    pthread_t thread_input = create_thread(input, NULL);
 
     pthread_join(thread_input, NULL);
 

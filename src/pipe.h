@@ -4,6 +4,6 @@
 #include <pthread.h>
 
 char *pipe_next();
-pthread_t pipe_start();
+void pipe_init();
 
 #endif
