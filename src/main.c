@@ -46,8 +46,6 @@ enum CARD_VALUE
 const int CARD_WIDTH = 158;
 const int CARD_HEIGHT = 246;
 
-typedef Image Card;
-
 Image *create_card(SDL_Texture *texture, int suit, int value)
 {
     return image_load(texture, "./data/bonded.png", CARD_WIDTH*value, CARD_HEIGHT*suit, CARD_WIDTH, CARD_HEIGHT);
@@ -91,24 +89,64 @@ void *input(void *vargp)
     return NULL;
 }
 
+typedef struct
+{
+    int suit;
+    int value;
+    int x;
+    int y;
+} Card;
+
+Card *card_create(char *msg)
+{
+    Card *card = calloc(1, sizeof(Card));
+
+    const char *delim = " ";
+
+    char *token = strtok(msg, delim);
+    char *ptr;
+    int parsed[4];
+    int i=0;
+    while (token != NULL)
+    {
+        parsed[i++] = strtol(token, &ptr, 10);
+        token = strtok(NULL, delim);
+    }
+
+    card->suit = parsed[0];
+    card->value = parsed[1];
+    card->x = parsed[2];
+    card->y = parsed[3];
+
+    return card;
+}
+
+void card_destroy(Card *card)
+{
+    freen(card);
+}
+
 void *loop(void *vargp)
 {
     App *app = app_create();
     SDL_Texture *texture = texture_load(app_renderer(app), app_screen(app), "./data/bonded.png");
     load_cards(texture);
 
+    SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
+    SDL_RenderClear(app_renderer(app));
+    SDL_RenderPresent(app_renderer(app));
     while (true)
     {
         char *msg = pipe_next();
-        if (strlen(msg) > 0)
-            printf("SBCL: %s\n", msg);
+        Card *card = card_create(msg);
         freen(msg);
 
         SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
         SDL_RenderClear(app_renderer(app));
-        app_render_image(app, card_image(SUIT_SPADES, VALUE_ACE), 0, 0);
-        app_render_image(app, card_image(SUIT_HEARTS, VALUE_KING), 100, 200);
+        app_render_image(app, card_image(card->suit, card->value), card->x, card->y);
         SDL_RenderPresent(app_renderer(app));
+
+        card_destroy(card);
         sleep(1/60);
     }
 
