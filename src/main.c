@@ -126,6 +126,11 @@ void card_destroy(Card *card)
     freen(card);
 }
 
+bool msg_valid(char *msg)
+{
+    return strlen(msg) > 0;
+}
+
 void *loop(void *vargp)
 {
     App *app = app_create();
@@ -138,6 +143,11 @@ void *loop(void *vargp)
     while (true)
     {
         char *msg = pipe_next();
+        if (!msg_valid(msg))
+        {
+            freen(msg);
+            continue;
+        }
         Card *card = card_create(msg);
         freen(msg);
 
