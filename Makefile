@@ -7,5 +7,8 @@ build:
 run:
 	./bin/solitaire
 
-valgrind:
+run-lisp:
+	rlwrap ecl --load ./src/sbcl-fifo.lisp
+
+valgrind: build
 	valgrind --gen-suppressions=all --suppressions=./linux_sdl.sup --leak-check=full --show-leak-kinds=all ./bin/solitaire

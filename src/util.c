@@ -1,6 +1,9 @@
 #include <stdlib.h>
 
-void freen(const void* obj)
+void freen(void* obj)
 {
-    while(obj) obj=NULL;
+    while(obj) {
+        free(obj);
+        obj=NULL;
+    }
 }

@@ -1,6 +1,5 @@
-(asdf:load-system :cffi)
+(defun oh-hi ()
+  (print "oh hi"))
 
-(defpackage :cffi-user
-  (:use :common-lisp :cffi))
-
-(in-package :cffi-user)
+(oh-hi)
+(terpri)

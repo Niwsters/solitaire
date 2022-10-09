@@ -15,6 +15,7 @@
 #include "util.h"
 #include "texture.h"
 #include "pipe.h"
+#include "queue.h"
 
 
 enum CARD_SUIT
@@ -131,10 +132,9 @@ bool msg_valid(char *msg)
     return strlen(msg) > 0;
 }
 
-void *loop(App **vargp)
+void start()
 {
-    App *app = *vargp;
-
+    App *app = app_create();
     SDL_Texture *texture = texture_load(app_renderer(app), app_screen(app), "./data/bonded.png");
     puts("Texture loaded");
     load_cards(texture);
@@ -143,28 +143,25 @@ void *loop(App **vargp)
     SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
     SDL_RenderClear(app_renderer(app));
     SDL_RenderPresent(app_renderer(app));
-    while (true)
+    bool quit = false;
+    SDL_Event e;
+    while (quit == false)
     {
-        char *msg = pipe_next();
-        if (!msg_valid(msg))
+        while (SDL_PollEvent(&e))
         {
-            freen(msg);
-            continue;
+            if (e.type == SDL_QUIT)
+                quit = true;
         }
-        Card *card = card_create(msg);
-        freen(msg);
 
         SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
         SDL_RenderClear(app_renderer(app));
-        app_render_image(app, card_image(card->suit, card->value), card->x, card->y);
         SDL_RenderPresent(app_renderer(app));
 
-        card_destroy(card);
         sleep(1/60);
     }
 
     destroy_cards();
-    return NULL;
+    app_destroy(app);
 }
 
 pthread_t create_thread(void (*func), void *input)
@@ -176,16 +173,9 @@ pthread_t create_thread(void (*func), void *input)
 
 int main()
 {
-    pipe_init();
-
-    App *app = app_create();
-
-    pthread_t thread_loop = create_thread(loop, &app);
-    pthread_t thread_input = create_thread(input, NULL);
-
-    pthread_join(thread_input, NULL);
-
-    app_destroy(app);
+    //pipe_init();
+    //start();
+    queue_test();
 
     exit(0);
     return 0;
