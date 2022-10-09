@@ -132,6 +132,18 @@ bool msg_valid(char *msg)
     return strlen(msg) > 0;
 }
 
+Queue *QUEUE;
+
+void QUEUE_ADD(char *message)
+{
+    queue_add(QUEUE, message);
+}
+
+char *QUEUE_POP()
+{
+    return queue_pop(QUEUE);
+}
+
 void start()
 {
     App *app = app_create();
@@ -139,6 +151,8 @@ void start()
     puts("Texture loaded");
     load_cards(texture);
     puts("Cards loaded");
+
+    Card *card = NULL;
 
     SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
     SDL_RenderClear(app_renderer(app));
@@ -155,6 +169,17 @@ void start()
 
         SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
         SDL_RenderClear(app_renderer(app));
+        
+        char *message = QUEUE_POP();
+        if (message != NULL)
+        {
+            printf("Message: %s\n", message);
+            card = card_create(message);
+        }
+
+        if (card != NULL)
+            app_render_image(app, card_image(card->suit, card->value), card->x, card->y);
+
         SDL_RenderPresent(app_renderer(app));
 
         sleep(1/60);
@@ -173,9 +198,13 @@ pthread_t create_thread(void (*func), void *input)
 
 int main()
 {
-    //pipe_init();
-    //start();
     queue_test();
+
+    QUEUE = queue_create();
+    QUEUE_ADD("0 0 0 0");
+
+    pipe_init();
+    start();
 
     exit(0);
     return 0;

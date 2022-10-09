@@ -152,5 +152,5 @@ void queue_test()
     test_queue_pop();
     test_queue_pop_empty();
 
-    puts("Tests finished");
+    puts("Queue tests finished");
 }
