@@ -12,8 +12,8 @@
 #include "image.h"
 #include "sprite.h"
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 typedef struct
 {
@@ -52,8 +52,8 @@ App* app_create()
         SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        SDL_WINDOW_SHOWN
-    ); 
+        SDL_WINDOW_RESIZABLE
+    );
 
     if (app->window == NULL)
     {
