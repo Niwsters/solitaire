@@ -14,31 +14,9 @@
 #define PIPE_PATH  "./pipe-test"
 #define MESSAGE_LENGTH 10
 
-char BUFFER[80];
 char *pipe_next()
 {
-    /*
-    BUFFER[0] = '\0';
-
-    int fd = open(PIPE_PATH, O_RDONLY);
-
-    if (fd == -1)
-        puts("WARNING: Failed to open FIFO pipe!");
-
-    read(fd, BUFFER, 80);
-
-    printf("BUFFER: %s\n", BUFFER);
-    size_t length = strlen(BUFFER);
-    char *msg = calloc(length + 1, sizeof(char));
-    strcpy(msg, BUFFER);
-    msg[length] = '\0';
-
-    printf("%s\n", msg);
-
-    close(fd);
-
-    return msg;
-    */
+    char BUFFER[80] = { '\0' };
 
     FILE *fifo = fopen(PIPE_PATH, "r");
 
