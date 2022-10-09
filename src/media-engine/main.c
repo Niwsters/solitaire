@@ -24,7 +24,8 @@ enum CARD_SUIT
     SUIT_DIAMONDS,
     SUIT_HEARTS,
     SUIT_SPADES,
-    SUIT_MISC
+    SUIT_MISC,
+    SUIT_COUNT
 };
 
 enum CARD_VALUE
@@ -41,7 +42,8 @@ enum CARD_VALUE
     VALUE_TEN,
     VALUE_JACK,
     VALUE_QUEEN,
-    VALUE_KING
+    VALUE_KING,
+    VALUE_COUNT
 };
 
 const int CARD_WIDTH = 158;
@@ -70,6 +72,9 @@ void destroy_cards()
 
 Image *card_image(int suit, int value)
 {
+    if (suit > SUIT_COUNT - 1)
+        return CARDS[SUIT_CLUBS][VALUE_ACE];
+
     return CARDS[suit][value];
 }
 
@@ -132,18 +137,6 @@ bool msg_valid(char *msg)
     return strlen(msg) > 0;
 }
 
-Queue *QUEUE;
-
-void QUEUE_ADD(char *message)
-{
-    queue_add(QUEUE, message);
-}
-
-char *QUEUE_POP()
-{
-    return queue_pop(QUEUE);
-}
-
 void start()
 {
     App *app = app_create();
@@ -152,13 +145,13 @@ void start()
     load_cards(texture);
     puts("Cards loaded");
 
-    Card *card = NULL;
-
     SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
     SDL_RenderClear(app_renderer(app));
     SDL_RenderPresent(app_renderer(app));
     bool quit = false;
     SDL_Event e;
+
+    Card *prev = NULL;
     while (quit == false)
     {
         while (SDL_PollEvent(&e))
@@ -169,21 +162,33 @@ void start()
 
         SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
         SDL_RenderClear(app_renderer(app));
-        
-        char *message = QUEUE_POP();
-        if (message != NULL)
-        {
-            printf("Message: %s\n", message);
-            card = card_create(message);
-        }
 
-        if (card != NULL)
+        char *message = pipe_next();
+        if (msg_valid(message))
+        {
+            Card *card = card_create(message);
             app_render_image(app, card_image(card->suit, card->value), card->x, card->y);
+
+            if (prev != NULL)
+                card_destroy(prev);
+
+            prev = card;
+        }
+        else
+        {
+            /*
+            if (prev != NULL)
+                app_render_image(app, card_image(prev->suit, prev->value), prev->x, prev->y);
+                */
+        }
+        freen(message);
 
         SDL_RenderPresent(app_renderer(app));
 
         sleep(1/60);
     }
+    if (prev != NULL)
+        card_destroy(prev);
 
     destroy_cards();
     app_destroy(app);
@@ -200,11 +205,9 @@ int main()
 {
     queue_test();
 
-    QUEUE = queue_create();
-    QUEUE_ADD("0 0 0 0");
-
     pipe_init();
     start();
+    pipe_close();
 
     exit(0);
     return 0;

@@ -1,7 +1,7 @@
-(defpackage :sbcl-fifo
+(defpackage :logic
   (:use :cl)
-  (:export :run :send))
-(in-package :sbcl-fifo)
+  (:export :send-card :start-loop))
+(in-package :logic)
 
 (defun suit-to-num (suit)
   (case suit
@@ -32,11 +32,27 @@
                         :if-exists :supersede)
     (format fifo msg)))
 
+(defun message (suit value)
+  (concatenate
+    'string
+    (write-to-string (suit-to-num suit))
+    " "
+    (write-to-string (value-to-num value))
+    " 30 50"))
+
+(defun with-length (message)
+  (concatenate
+    'string
+    (write-to-string (length message))
+    " "
+    message))
+
 (defun send-card (suit value)
-  (send
-    (concatenate
-      'string
-      (write-to-string (suit-to-num suit))
-      " "
-      (write-to-string (value-to-num value))
-      " 30 50")))
+  (let ((msg (message suit value)))
+    (print (concatenate 'string "sending: " msg))
+    (send msg)))
+
+(defun start-loop ()
+  (loop
+    (send-card :hearts :king)
+    (sleep 1/60)))

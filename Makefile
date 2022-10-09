@@ -1,14 +1,14 @@
 memcheck: compile valgrind
-all: build run
+all: build run-media
 
 build:
-	gcc ./src/*c -o ./bin/solitaire `sdl2-config --cflags --libs` -lSDL2_image -lm -pthread
+	gcc ./src/media-engine/*c -o ./bin/solitaire `sdl2-config --cflags --libs` -lSDL2_image -lm -pthread
 
-run:
+run-media:
 	./bin/solitaire
 
-run-lisp:
-	rlwrap ecl --load ./src/sbcl-fifo.lisp
+run-logic:
+	rlwrap ecl --load ./src/logic-engine/logic.lisp
 
 valgrind: build
 	valgrind --gen-suppressions=all --suppressions=./linux_sdl.sup --leak-check=full --show-leak-kinds=all ./bin/solitaire

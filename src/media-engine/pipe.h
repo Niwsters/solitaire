@@ -5,5 +5,6 @@
 
 char *pipe_next();
 void pipe_init();
+void pipe_close();
 
 #endif
