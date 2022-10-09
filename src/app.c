@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_error.h>
+#include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_video.h>
@@ -46,6 +47,8 @@ App* app_create()
         return NULL;
     }
 
+    puts("Creating window");
+
     app->window = SDL_CreateWindow(
         "Solitaire",
         SDL_WINDOWPOS_UNDEFINED,
@@ -54,6 +57,8 @@ App* app_create()
         SCREEN_HEIGHT,
         SDL_WINDOW_RESIZABLE
     );
+
+    puts("Window created");
 
     if (app->window == NULL)
     {
@@ -68,12 +73,16 @@ App* app_create()
         return NULL;
     }
 
+    puts("Image system initialised");
+
     app->renderer = SDL_CreateRenderer(app->window, -1, SDL_RENDERER_ACCELERATED);
     if (app->renderer == NULL)
     {
         printf("Unable to load renderer. SDL_Error: %s\n", SDL_GetError());
         return NULL;
     }
+
+    puts("App created");
 
     return app;
 }

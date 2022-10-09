@@ -131,11 +131,14 @@ bool msg_valid(char *msg)
     return strlen(msg) > 0;
 }
 
-void *loop(void *vargp)
+void *loop(App **vargp)
 {
-    App *app = app_create();
+    App *app = *vargp;
+
     SDL_Texture *texture = texture_load(app_renderer(app), app_screen(app), "./data/bonded.png");
+    puts("Texture loaded");
     load_cards(texture);
+    puts("Cards loaded");
 
     SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
     SDL_RenderClear(app_renderer(app));
@@ -161,7 +164,6 @@ void *loop(void *vargp)
     }
 
     destroy_cards();
-    app_destroy(app);
     return NULL;
 }
 
@@ -176,10 +178,14 @@ int main()
 {
     pipe_init();
 
-    pthread_t thread_loop = create_thread(loop, NULL);
+    App *app = app_create();
+
+    pthread_t thread_loop = create_thread(loop, &app);
     pthread_t thread_input = create_thread(input, NULL);
 
     pthread_join(thread_input, NULL);
+
+    app_destroy(app);
 
     exit(0);
     return 0;
