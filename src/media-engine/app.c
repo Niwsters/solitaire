@@ -12,6 +12,9 @@
 #include "util.h"
 #include "image.h"
 #include "sprite.h"
+#include "pipe.h"
+#include "card.h"
+#include "card_image.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -21,16 +24,6 @@ typedef struct
     SDL_Window* window;
     SDL_Renderer* renderer;
 } App;
-
-SDL_Window *app_window(App *app)
-{
-    return app->window;
-}
-
-SDL_Surface *app_screen(App *app)
-{
-    return SDL_GetWindowSurface(app_window(app));
-}
 
 SDL_Renderer *app_renderer(App *app)
 {
@@ -98,4 +91,34 @@ void app_destroy(App* app)
     SDL_DestroyWindow(app->window);
     SDL_Quit();
     freen(app);
+}
+
+bool msg_valid(char *msg)
+{
+    return strlen(msg) > 0;
+}
+
+void clear_screen(App *app)
+{
+    SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
+    SDL_RenderClear(app_renderer(app));
+}
+
+void handle_message(App *app)
+{
+    char *message = pipe_next();
+    if (msg_valid(message))
+    {
+        Card *card = card_create(message);
+        app_render_image(app, card_image(card_suit(card), card_value(card)), card_x(card), card_y(card));
+        card_destroy(card);
+    }
+    freen(message);
+}
+
+void app_render(App *app)
+{
+    clear_screen(app);
+    handle_message(app);
+    SDL_RenderPresent(app_renderer(app));
 }
