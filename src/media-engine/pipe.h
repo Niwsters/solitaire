@@ -3,8 +3,9 @@
 
 #include <pthread.h>
 
-char *pipe_next();
-void pipe_init();
-void pipe_close();
+typedef struct Pipe Pipe;
+Pipe *pipe_create(const char *path);
+char *pipe_next(Pipe *pipe);
+void pipe_destroy(Pipe *pipe);
 
 #endif

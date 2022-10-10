@@ -10,5 +10,6 @@ App* app_create();
 void app_destroy(App* app);
 SDL_Renderer *app_renderer(App *app);
 void app_render(App *app);
+void app_start(App *app);
 
 #endif

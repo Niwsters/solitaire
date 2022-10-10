@@ -21,8 +21,9 @@ const int SCREEN_HEIGHT = 1080;
 
 typedef struct
 {
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    Pipe *pipe;
 } App;
 
 SDL_Renderer *app_renderer(App *app)
@@ -30,19 +31,30 @@ SDL_Renderer *app_renderer(App *app)
     return app->renderer;
 }
 
-App* app_create()
+void init_sdl()
 {
-    App* app = malloc(sizeof(App));
-
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("SDL could not initialise! SDL_Error: %s\n", SDL_GetError());
-        return NULL;
+        exit(1);
+    }
+}
+
+void init_sdl_image()
+{
+    int imgFlags = IMG_INIT_PNG;
+    if ( !(IMG_Init(imgFlags) & imgFlags) )
+    {
+        printf("SDL image could not initialise. SDL_image Error: %s\n", IMG_GetError());
+        exit(1);
     }
 
-    puts("Creating window");
+    puts("Image loading initialised");
+}
 
-    app->window = SDL_CreateWindow(
+SDL_Window *create_window()
+{
+    SDL_Window *window = SDL_CreateWindow(
         "Solitaire",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
@@ -51,31 +63,42 @@ App* app_create()
         SDL_WINDOW_RESIZABLE
     );
 
-    puts("Window created");
-
-    if (app->window == NULL)
+    if (window == NULL)
     {
         printf("Window could not be created. SDL_Error: %s\n", SDL_GetError());
-        return NULL;
+        exit(1);
     }
 
-    int imgFlags = IMG_INIT_PNG;
-    if ( !(IMG_Init(imgFlags) & imgFlags) )
-    {
-        printf("SDL image could not initialise. SDL_image Error: %s\n", IMG_GetError());
-        return NULL;
-    }
+    return window;
+}
 
-    puts("Image loading initialised");
+SDL_Renderer *create_renderer(SDL_Window *window)
+{
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    app->renderer = SDL_CreateRenderer(app->window, -1, SDL_RENDERER_ACCELERATED);
-    if (app->renderer == NULL)
+    if (renderer == NULL)
     {
         printf("Unable to load renderer. SDL_Error: %s\n", SDL_GetError());
-        return NULL;
+        exit(1);
     }
 
-    puts("App created");
+    return renderer;
+}
+
+App* app_create()
+{
+    init_sdl();
+    init_sdl_image();
+
+    puts("Initialising...");
+    App* app = malloc(sizeof(App));
+    app->pipe = pipe_create("./pipe-test");
+
+    app->window = create_window();
+    puts("Window created");
+
+    app->renderer = create_renderer(app->window);
+    puts("Renderer created");
 
     return app;
 }
@@ -90,6 +113,7 @@ void app_destroy(App* app)
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
     SDL_Quit();
+    pipe_destroy(app->pipe);
     freen(app);
 }
 
@@ -106,7 +130,7 @@ void clear_screen(App *app)
 
 void handle_message(App *app)
 {
-    char *message = pipe_next();
+    char *message = pipe_next(app->pipe);
     if (msg_valid(message))
     {
         Card *card = card_create(message);
@@ -121,4 +145,28 @@ void app_render(App *app)
     clear_screen(app);
     handle_message(app);
     SDL_RenderPresent(app_renderer(app));
+}
+
+void app_start(App *app)
+{
+    init_card_images(app_renderer(app));
+
+    SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
+    bool quit = false;
+    SDL_Event e;
+
+    while (quit == false)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+                quit = true;
+        }
+
+        app_render(app);
+
+        sleep(1/60);
+    }
+
+    destroy_cards();
 }
