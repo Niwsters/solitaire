@@ -29,7 +29,8 @@
 (defun send (msg)
   (with-open-file (fifo "./pipe-test"
                         :direction :output
-                        :if-exists :supersede)
+                        :if-exists :supersede
+                        :if-does-not-exist nil)
     (format fifo msg)))
 
 (defun message (suit value)

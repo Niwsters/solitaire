@@ -16,9 +16,8 @@
 #include "card.h"
 #include "card_image.h"
 
-void start()
+void app_start(App *app)
 {
-    App *app = app_create();
     init_card_images(app_renderer(app));
 
     SDL_SetRenderDrawColor(app_renderer(app), 0xFF, 0x00, 0x00, 0x00);
@@ -45,7 +44,8 @@ void start()
 int main()
 {
     pipe_init();
-    start();
+    App *app = app_create();
+    app_start(app);
     pipe_close();
 
     exit(0);

@@ -42,4 +42,5 @@ void pipe_init()
 
 void pipe_close()
 {
+    remove(PIPE_PATH);
 }
