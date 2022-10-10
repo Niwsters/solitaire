@@ -12,7 +12,6 @@
 #include "util.h"
 
 #define PIPE_PATH  "./pipe-test"
-#define MESSAGE_LENGTH 10
 
 char *pipe_next()
 {
@@ -29,7 +28,7 @@ char *pipe_next()
 
     BUFFER[length++] = '\0';
 
-    char *msg = calloc(length, sizeof(char) + 1);
+    char *msg = calloc(length, sizeof(char));
     strcpy(msg, BUFFER);
 
     fclose(fifo);

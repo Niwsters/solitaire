@@ -3,7 +3,7 @@
 
 #include "image.h"
 
-void init_card_images(SDL_Renderer *renderer, SDL_Surface *screen);
+void init_card_images(SDL_Renderer *renderer);
 void destroy_cards();
 Image *card_image(int suit, int value);
 

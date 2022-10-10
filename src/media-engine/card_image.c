@@ -45,11 +45,12 @@ void load_cards(SDL_Texture *texture)
         CARDS[suit][value] = create_card_image(texture, suit, value);
 }
 
-void init_card_images(SDL_Renderer *renderer, SDL_Surface *screen)
+SDL_Texture *TEXTURE;
+void init_card_images(SDL_Renderer *renderer)
 {
-    SDL_Texture *texture = texture_load(renderer, screen, "./data/bonded.png");
+    TEXTURE = texture_load(renderer, "./data/bonded.png");
     puts("Texture loaded");
-    load_cards(texture);
+    load_cards(TEXTURE);
     puts("Cards loaded");
 }
 
@@ -58,6 +59,8 @@ void destroy_cards()
     for (int suit=0; suit<4; suit++)
     for (int value=0; value<13; value++)
         image_destroy(CARDS[suit][value]);
+
+    SDL_DestroyTexture(TEXTURE);
 }
 
 Image *card_image(int suit, int value)

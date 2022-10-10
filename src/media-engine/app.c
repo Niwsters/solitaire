@@ -73,7 +73,7 @@ App* app_create()
         return NULL;
     }
 
-    puts("Image system initialised");
+    puts("Image loading initialised");
 
     app->renderer = SDL_CreateRenderer(app->window, -1, SDL_RENDERER_ACCELERATED);
     if (app->renderer == NULL)
@@ -85,11 +85,6 @@ App* app_create()
     puts("App created");
 
     return app;
-}
-
-void app_render_sprite(App *app, Sprite *sprite)
-{
-    sprite_render(app_renderer(app), sprite);
 }
 
 void app_render_image(App *app, Image *image, double x, double y)
