@@ -21,18 +21,18 @@ char *pipe_next()
     FILE *fifo = fopen(PIPE_PATH, "r");
 
     char c;
-    int i=0;
+    int length=0;
     while ((c = getc(fifo)) != EOF)
     {
-        BUFFER[i++] = c;
+        BUFFER[length++] = c;
     }
 
-    size_t length = strlen(BUFFER);
-    char *msg = calloc(length, sizeof(char));
+    BUFFER[length++] = '\0';
+
+    char *msg = calloc(length, sizeof(char) + 1);
     strcpy(msg, BUFFER);
 
     fclose(fifo);
-    printf("msg: %s\n", msg);
     return msg;
 }
 
