@@ -31,6 +31,18 @@ const char *pipe_path(Pipe *pipe)
     return pipe->path;
 }
 
+FILE *file(Pipe *pipe, const char *permissions)
+{
+    FILE *fifo = fopen(pipe_path(pipe), permissions);
+
+    if (!fifo) {
+        printf("ERROR: Could not open FIFO file in path %s\n", pipe_path(pipe));
+        exit(1);
+    }
+
+    return fifo;
+}
+
 void pipe_destroy(Pipe *pipe)
 {
     remove(pipe_path(pipe));
@@ -41,12 +53,7 @@ char *pipe_next(Pipe *pipe)
 {
     char BUFFER[80] = { '\0' };
 
-    FILE *fifo = fopen(pipe_path(pipe), "r");
-
-    if (!fifo) {
-        printf("ERROR: Could not open FIFO file in path %s\n", pipe_path(pipe));
-        exit(1);
-    }
+    FILE *fifo = file(pipe, "r");
 
     char c;
     int length=0;
@@ -55,10 +62,19 @@ char *pipe_next(Pipe *pipe)
     }
 
     BUFFER[length++] = '\0';
+    fclose(fifo);
 
     char *msg = calloc(length, sizeof(char));
     strcpy(msg, BUFFER);
 
-    fclose(fifo);
     return msg;
+}
+
+void pipe_send(Pipe *pipe, const char *msg)
+{
+    FILE *fifo = file(pipe, "w");
+    puts("FIFO opened");
+    fwrite(msg, 1, strlen(msg)+1, fifo);
+    puts("FIFO written");
+    fclose(fifo);
 }

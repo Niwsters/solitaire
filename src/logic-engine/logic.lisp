@@ -1,6 +1,6 @@
 (defpackage :logic
   (:use :cl)
-  (:export :send-card :start-loop))
+  (:export :send-card :start-loop :read-input))
 (in-package :logic)
 
 (defun suit-to-num (suit)
@@ -53,7 +53,14 @@
     (print (concatenate 'string "sending: " msg))
     (send msg)))
 
+(defun read-input ()
+  (with-open-file (fifo "./pipe-io"
+                        :direction :input
+                        :if-does-not-exist nil)
+    (format t "Read [~A]~%" (read-line fifo nil))))
+
 (defun start-loop ()
   (loop
+;    (read-input)
     (send-card :hearts :king)
     (sleep 1/60)))

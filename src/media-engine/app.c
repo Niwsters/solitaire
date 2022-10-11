@@ -23,7 +23,8 @@ typedef struct
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
-    Pipe *pipe;
+    Pipe *pipe_input;
+    Pipe *pipe_output;
 } App;
 
 SDL_Renderer *app_renderer(App *app)
@@ -92,7 +93,8 @@ App* app_create()
 
     puts("Initialising...");
     App* app = malloc(sizeof(App));
-    app->pipe = pipe_create("./pipe-test");
+    app->pipe_input = pipe_create("./pipe-test");
+    app->pipe_output = pipe_create("./pipe-io");
 
     app->window = create_window();
     puts("Window created");
@@ -113,7 +115,8 @@ void app_destroy(App* app)
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
     SDL_Quit();
-    pipe_destroy(app->pipe);
+    pipe_destroy(app->pipe_input);
+    pipe_destroy(app->pipe_output);
     freen(app);
 }
 
@@ -130,7 +133,7 @@ void clear_screen(App *app)
 
 void handle_message(App *app)
 {
-    char *message = pipe_next(app->pipe);
+    char *message = pipe_next(app->pipe_input);
     if (msg_valid(message))
     {
         Card *card = card_create(message);
@@ -157,11 +160,22 @@ void app_start(App *app)
 
     while (quit == false)
     {
+        char msg[128] = "none";
         while (SDL_PollEvent(&e))
         {
             if (e.type == SDL_QUIT)
                 quit = true;
+            else if (e.type == SDL_MOUSEMOTION)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                printf("Mouse: %i, %i\n", x, y);
+                sprintf(msg, "mouse_moved %i %i", x, y);
+            }
         }
+        puts("Sending message");
+        pipe_send(app->pipe_output, msg);
+        puts("Message sent");
 
         app_render(app);
 
