@@ -1,14 +1,123 @@
+#include <ecl/ecl.h>
+#include <ecl/external.h>
+#include <assert.h>
+#include <pthread.h>
+#include <unistd.h>
+
 #include "app.h"
 #include "pipe.h"
+#include "util.h"
 
-
-#define PIPE_PATH  "./pipe-test"
-int main()
+typedef struct
 {
+    char *value;
+    pthread_mutex_t mutex;
+} Atom;
+
+Atom *atom_create(char *value)
+{
+    Atom *atom = calloc(1, sizeof(Atom));
+
+    size_t length = strlen(value) + 1;
+    atom->value = calloc(length, sizeof(char));
+    strcpy(atom->value, value);
+
+    pthread_mutex_init(&atom->mutex, NULL);
+
+    return atom;
+}
+
+void atom_destroy(Atom **atom)
+{
+    assert(atom);
+    if (*atom) {
+        Atom *self = *atom;
+        freen(self->value);
+        freen(self);
+    }
+}
+
+char *atom_value(Atom *atom)
+{
+    pthread_mutex_lock(&atom->mutex);
+
+    char *value = calloc(strlen(atom->value)+1, sizeof(char));
+    strcpy(value, atom->value);
+
+    pthread_mutex_unlock(&atom->mutex);
+
+    return value;
+}
+
+void atom_swap(Atom *atom, char *(*value_func)(char*))
+{
+    pthread_mutex_lock(&atom->mutex);
+
+    char *new_value = value_func(atom->value);
+    freen(atom->value);
+    atom->value = new_value;
+
+    pthread_mutex_unlock(&atom->mutex);
+}
+
+char *add_honk(char *str)
+{
+    size_t length = strlen(str) + strlen(" honk");
+    char *new = calloc(length + 1, sizeof(char));
+    strcpy(new, str);
+    strcat(new, " honk");
+    return new;
+}
+
+void *test(void *atom_p)
+{
+    Atom *atom = (Atom*) atom_p;
+
+    char *value = atom_value(atom);
+    printf("Atom: %s\n", value);
+    freen(value);
+    atom_swap(atom, add_honk);
+
+    char *value2 = atom_value(atom);
+    printf("Atom: %s\n", value2);
+    freen(value2);
+
+    return NULL;
+}
+
+pthread_t thread_create(Atom *atom)
+{
+    pthread_t tid;
+    pthread_create(&tid, NULL, &test, atom);
+    return tid;
+}
+
+int main (int argc, char **argv)
+{
+    Atom *atom = atom_create("blargh");
+
+    pthread_t t1 = thread_create(atom);
+    pthread_t t2 = thread_create(atom);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+
+    atom_destroy(&atom);
+
+    /*
+    cl_boot(argc, argv);
+    extern void init_lisp(cl_object);
+    ecl_init_module(NULL, init_lisp);
+
+    cl_object fun_receive_message = cl_eval(c_string_to_object("(lambda (msg) (receive-message msg))"));
+    const char *msg = "oh hi :D";
+    cl_object result = cl_funcall(2, fun_receive_message, ecl_make_constant_base_string(msg, strlen(msg)));
+
     App *app = app_create();
     app_start(app);
     app_destroy(app);
 
+    cl_shutdown();
     exit(0);
+    */
     return 0;
 }
