@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "app.h"
 #include "pipe.h"
@@ -85,15 +86,37 @@ void *test(void *atom_p)
     return NULL;
 }
 
-pthread_t thread_create(Atom *atom)
+pthread_t thread_create(void *(*func)(void*), void *input)
 {
     pthread_t tid;
-    pthread_create(&tid, NULL, &test, atom);
+    pthread_create(&tid, NULL, func, input);
     return tid;
+}
+
+void *await_user_input(void *input)
+{
+    Atom *atom = (Atom*) input;
+
+    while (strcmp(atom_value(atom), "true") != 0);
+
+    char msg[128];
+
+    printf("Type msg plz: ");
+    scanf("%s", msg);
+
+    printf("msg: %s\n", msg);
+
+    return NULL;
+}
+
+char *set_true(char *current)
+{
+    return "true";
 }
 
 int main (int argc, char **argv)
 {
+    /*
     Atom *atom = atom_create("blargh");
 
     pthread_t t1 = thread_create(atom);
@@ -103,7 +126,6 @@ int main (int argc, char **argv)
 
     atom_destroy(&atom);
 
-    /*
     cl_boot(argc, argv);
     extern void init_lisp(cl_object);
     ecl_init_module(NULL, init_lisp);
@@ -111,13 +133,21 @@ int main (int argc, char **argv)
     cl_object fun_receive_message = cl_eval(c_string_to_object("(lambda (msg) (receive-message msg))"));
     const char *msg = "oh hi :D";
     cl_object result = cl_funcall(2, fun_receive_message, ecl_make_constant_base_string(msg, strlen(msg)));
+    */
+
+    Atom *atom = atom_create("false");
+    pthread_t tid = thread_create(&await_user_input, atom);
 
     App *app = app_create();
+    atom_swap(atom, set_true);
     app_start(app);
     app_destroy(app);
 
+    pthread_join(tid, NULL);
+
+    /*
     cl_shutdown();
-    exit(0);
     */
+    exit(0);
     return 0;
 }

@@ -146,7 +146,7 @@ void handle_message(App *app)
 void app_render(App *app)
 {
     clear_screen(app);
-    handle_message(app);
+    //handle_message(app);
     SDL_RenderPresent(app_renderer(app));
 }
 
@@ -173,9 +173,11 @@ void app_start(App *app)
                 sprintf(msg, "mouse_moved %i %i", x, y);
             }
         }
+        /*
         puts("Sending message");
         pipe_send(app->pipe_output, msg);
         puts("Message sent");
+        */
 
         app_render(app);
 
