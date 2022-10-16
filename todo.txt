@@ -1,1 +1,3 @@
 - Make Lisp REPL work with rendering running
+-- Create thread safe queue
+-- Use thread safe queue to implement Lisp REPL through C

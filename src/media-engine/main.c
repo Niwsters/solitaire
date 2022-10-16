@@ -8,10 +8,11 @@
 
 #include "app.h"
 #include "atom.h"
+#include "queue.h"
 
 void lisp_interpret_scanf()
 {
-    printf("about to scan some shit");
+    printf("> ");
     char msg[128];
 
     fgets(msg, 128, stdin);
@@ -45,7 +46,9 @@ int main (int argc, char **argv)
 {
     cl_boot(argc, argv);
     atom_run_tests();
+    queue_run_tests();
 
+    /*
     Atom *atom = atom_create("");
 
     lisp_interpret_scanf();
@@ -53,6 +56,7 @@ int main (int argc, char **argv)
     App *app = app_create(atom);
     app_start(app);
     app_destroy(app);
+    */
 
     cl_shutdown();
 

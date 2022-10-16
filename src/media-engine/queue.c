@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <pthread.h>
+#include <unistd.h>
 
 #include "util.h"
 
@@ -36,6 +38,7 @@ typedef struct
 {
     Message *next;
     Message *last;
+    pthread_mutex_t mutex;
 } Queue;
 
 Queue *queue_create()
@@ -43,6 +46,9 @@ Queue *queue_create()
     Queue *queue = malloc(sizeof(Queue));
     queue->next = NULL;
     queue->last = NULL;
+
+    pthread_mutex_init(&queue->mutex, NULL);
+
     return queue;
 }
 
@@ -62,29 +68,36 @@ void queue_destroy(Queue *queue)
 
 char *queue_pop(Queue *queue)
 {
-    Message *message = queue->next;
-    if (message == NULL)
-        return NULL;
+    pthread_mutex_lock(&queue->mutex);
 
-    queue->next = queue->next->next;
-    char *content = message_content(message);
+    Message *message = queue->next;
+
+    char *content = NULL;
+    if (message != NULL) {
+        queue->next = queue->next->next;
+        content = message_content(message);
+    }
+
     message_destroy(message);
+    pthread_mutex_unlock(&queue->mutex);
+
     return content;
 }
 
 void queue_add(Queue *queue, char *content)
 {
     Message *message = message_create(content);
+    pthread_mutex_lock(&queue->mutex);
 
-    if (queue->last == NULL)
-    {
+    if (queue->last == NULL) {
         queue->next = message;
         queue->last = message;
-        return;
+    } else {
+        queue->last->next = message;
+        queue->last = message;
     }
 
-    queue->last->next = message;
-    queue->last = message;
+    pthread_mutex_unlock(&queue->mutex);
 }
 
 void test_message()
@@ -144,13 +157,48 @@ void test_queue_add()
     queue_destroy(queue);
 }
 
-void queue_test()
+pthread_t thread_create(void *(*func)(void *), void *input)
+{
+    pthread_t tid;
+    pthread_create(&tid, NULL, func, input);
+    return tid;
+}
+
+void *thread(void *input)
+{
+    Queue *queue = (Queue*) input;
+
+    // Has a high (not 100%) chance of causing a memory leak if not thread safe
+    for (int i=0; i<1000; i++)
+        queue_add(queue, "oh hi");
+
+    for (int i=0; i<1000; i++) {
+        char *msg = queue_pop(queue);
+        if (msg != NULL)
+            freen(msg);
+    }
+
+    return NULL;
+}
+
+void test_queue_multithreaded()
+{
+    Queue *queue = queue_create();
+    pthread_t tid1 = thread_create(thread, queue);
+    pthread_t tid2 = thread_create(thread, queue);
+    pthread_join(tid1, NULL);
+    pthread_join(tid2, NULL);
+    queue_destroy(queue);
+}
+
+void queue_run_tests()
 {
     test_message();
     test_queue_create();
     test_queue_add();
     test_queue_pop();
     test_queue_pop_empty();
+    test_queue_multithreaded();
 
     puts("Queue tests finished");
 }
