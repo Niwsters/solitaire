@@ -15,6 +15,7 @@
 #include "pipe.h"
 #include "card.h"
 #include "card_image.h"
+#include "atom.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -23,8 +24,7 @@ typedef struct
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
-    Pipe *pipe_input;
-    Pipe *pipe_output;
+    Atom *atom;
 } App;
 
 SDL_Renderer *app_renderer(App *app)
@@ -86,21 +86,21 @@ SDL_Renderer *create_renderer(SDL_Window *window)
     return renderer;
 }
 
-App* app_create()
+App* app_create(Atom *atom)
 {
     init_sdl();
     init_sdl_image();
 
     puts("Initialising...");
     App* app = malloc(sizeof(App));
-    app->pipe_input = pipe_create("./pipe-test");
-    app->pipe_output = pipe_create("./pipe-io");
 
     app->window = create_window();
     puts("Window created");
 
     app->renderer = create_renderer(app->window);
     puts("Renderer created");
+
+    app->atom = atom;
 
     return app;
 }
@@ -115,8 +115,6 @@ void app_destroy(App* app)
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
     SDL_Quit();
-    pipe_destroy(app->pipe_input);
-    pipe_destroy(app->pipe_output);
     freen(app);
 }
 
@@ -131,22 +129,9 @@ void clear_screen(App *app)
     SDL_RenderClear(app_renderer(app));
 }
 
-void handle_message(App *app)
-{
-    char *message = pipe_next(app->pipe_input);
-    if (msg_valid(message))
-    {
-        Card *card = card_create(message);
-        app_render_image(app, card_image(card_suit(card), card_value(card)), card_x(card), card_y(card));
-        card_destroy(card);
-    }
-    freen(message);
-}
-
 void app_render(App *app)
 {
     clear_screen(app);
-    //handle_message(app);
     SDL_RenderPresent(app_renderer(app));
 }
 
@@ -173,11 +158,6 @@ void app_start(App *app)
                 sprintf(msg, "mouse_moved %i %i", x, y);
             }
         }
-        /*
-        puts("Sending message");
-        pipe_send(app->pipe_output, msg);
-        puts("Message sent");
-        */
 
         app_render(app);
 
