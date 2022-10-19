@@ -34,10 +34,6 @@ void *lisp_loop(void *input)
 
         msg[strlen(msg)-1] = '\0'; // trim the enter button
 
-        if (strcmp(msg, "exit") == 0) {
-            break;
-        }
-
         queue_add(queue, msg);
 
         for (int i=0; i<strlen(msg); i++) {
@@ -74,8 +70,6 @@ int main (int argc, char **argv)
     App *app = app_create(queue);
     app_start(app);
     app_destroy(app);
-
-    pthread_join(tid, NULL);
 
     queue_destroy(queue);
 
