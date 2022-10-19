@@ -100,13 +100,6 @@ typedef struct
     char *value;
 } Object;
 
-char *str(char *source)
-{
-    char *str = calloc(strlen(source) + 1, sizeof(char));
-    strcpy(str, source);
-    return str;
-}
-
 void atom_run_tests()
 {
     printf("Running Atom tests\n");

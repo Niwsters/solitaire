@@ -76,6 +76,9 @@ char *queue_pop(Queue *queue)
     if (message != NULL) {
         queue->next = queue->next->next;
         content = message_content(message);
+
+        if (queue->next == NULL)
+            queue->last = NULL;
     }
 
     message_destroy(message);
@@ -157,6 +160,15 @@ void test_queue_add()
     queue_destroy(queue);
 }
 
+void test_queue_add_pop_add()
+{
+    Queue *queue = queue_create();
+    queue_add(queue, "oh hi");
+    freen(queue_pop(queue));
+    queue_add(queue, ":D");
+    queue_destroy(queue);
+}
+
 pthread_t thread_create(void *(*func)(void *), void *input)
 {
     pthread_t tid;
@@ -193,11 +205,14 @@ void test_queue_multithreaded()
 
 void queue_run_tests()
 {
+    puts("Running Queue tests");
+
     test_message();
     test_queue_create();
     test_queue_add();
     test_queue_pop();
     test_queue_pop_empty();
+    test_queue_add_pop_add();
     test_queue_multithreaded();
 
     puts("Queue tests finished");

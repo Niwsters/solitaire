@@ -16,6 +16,7 @@
 #include "card.h"
 #include "card_image.h"
 #include "atom.h"
+#include "queue.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -24,7 +25,7 @@ typedef struct
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
-    Atom *atom;
+    Queue *queue;
 } App;
 
 SDL_Renderer *app_renderer(App *app)
@@ -86,7 +87,7 @@ SDL_Renderer *create_renderer(SDL_Window *window)
     return renderer;
 }
 
-App* app_create(Atom *atom)
+App* app_create(Queue *queue)
 {
     init_sdl();
     init_sdl_image();
@@ -100,8 +101,7 @@ App* app_create(Atom *atom)
     app->renderer = create_renderer(app->window);
     puts("Renderer created");
 
-    app->atom = atom;
-
+    app->queue = queue;
     return app;
 }
 
@@ -129,9 +129,17 @@ void clear_screen(App *app)
     SDL_RenderClear(app_renderer(app));
 }
 
-void app_render(App *app)
+void app_render(App *app, Card *card)
 {
     clear_screen(app);
+
+    app_render_image(
+        app,
+        card_image(card_suit(card), card_value(card)),
+        card_x(card),
+        card_y(card)
+    );
+
     SDL_RenderPresent(app_renderer(app));
 }
 
@@ -143,6 +151,7 @@ void app_start(App *app)
     bool quit = false;
     SDL_Event e;
 
+    Card *card = card_create("0 0 0 0");
     while (quit == false)
     {
         char msg[128] = "none";
@@ -159,10 +168,19 @@ void app_start(App *app)
             }
         }
 
-        app_render(app);
+        char *new_msg = queue_pop(app->queue);
+        if (new_msg != NULL) {
+            Card *prev = card;
+            card = card_create(new_msg);
+            card_destroy(prev);
+            freen(new_msg);
+        }
+
+        app_render(app, card);
 
         sleep(1/60);
     }
 
+    card_destroy(card);
     destroy_cards();
 }

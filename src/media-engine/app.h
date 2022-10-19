@@ -5,9 +5,10 @@
 #include "image.h"
 #include "sprite.h"
 #include "atom.h"
+#include "queue.h"
 
 typedef struct App App;
-App* app_create(Atom *atom);
+App* app_create(Queue *queue);
 void app_destroy(App* app);
 SDL_Renderer *app_renderer(App *app);
 void app_render(App *app);

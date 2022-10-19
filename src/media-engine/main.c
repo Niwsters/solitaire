@@ -25,12 +25,30 @@ void lisp_interpret_scanf()
 
 void *lisp_loop(void *input)
 {
-    lisp_interpret_scanf();
+    Queue *queue = (Queue*) input;
+
+    char msg[128];
+    while (true) {
+        printf("> ");
+        fgets(msg, 128, stdin);
+
+        msg[strlen(msg)-1] = '\0'; // trim the enter button
+
+        if (strcmp(msg, "exit") == 0) {
+            break;
+        }
+
+        queue_add(queue, msg);
+
+        for (int i=0; i<strlen(msg); i++) {
+            printf("%i, %i\n", msg[i], isspace(msg[i]));
+        }
+    }
 
     return NULL;
 }
 
-pthread_t lisp_start(Atom *atom)
+pthread_t lisp_start(Queue *queue)
 {
     /*
     extern void init_lisp(cl_object);
@@ -38,25 +56,28 @@ pthread_t lisp_start(Atom *atom)
     */
 
     pthread_t tid;
-    pthread_create(&tid, NULL, lisp_loop, NULL);
+    pthread_create(&tid, NULL, lisp_loop, queue);
     return tid;
 }
 
 int main (int argc, char **argv)
 {
     cl_boot(argc, argv);
+
     atom_run_tests();
     queue_run_tests();
 
-    /*
-    Atom *atom = atom_create("");
+    Queue *queue = queue_create();
 
-    lisp_interpret_scanf();
+    pthread_t tid = lisp_start(queue);
 
-    App *app = app_create(atom);
+    App *app = app_create(queue);
     app_start(app);
     app_destroy(app);
-    */
+
+    pthread_join(tid, NULL);
+
+    queue_destroy(queue);
 
     cl_shutdown();
 

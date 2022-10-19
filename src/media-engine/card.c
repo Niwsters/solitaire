@@ -11,8 +11,11 @@ typedef struct
     int y;
 } Card;
 
-Card *card_create(char *msg)
+Card *card_create(char *msg_p)
 {
+    char *msg = calloc(strlen(msg_p) + 1, sizeof(char));
+    strcpy(msg, msg_p);
+
     Card *card = calloc(1, sizeof(Card));
 
     const char *delim = " ";
@@ -32,6 +35,7 @@ Card *card_create(char *msg)
     card->x = parsed[2];
     card->y = parsed[3];
 
+    freen(msg);
     return card;
 }
 
