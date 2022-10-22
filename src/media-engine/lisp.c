@@ -31,23 +31,36 @@ pthread_t lisp_start(Queue *queue)
     return tid;
 }
 
-void lisp_receive_message(Queue *queue)
+void lisp_receive_message(char *msg)
+{
+    cl_object receive_message = cl_eval(
+        c_string_to_object("(lambda (msg) (logic:receive-message msg))")
+    );
+
+    cl_object result = cl_funcall(
+        2,
+        receive_message,
+        ecl_make_simple_base_string(msg, strlen(msg))
+    );
+
+    ecl_print(result, ECL_T);
+    ecl_terpri(ECL_T);
+}
+
+void lisp_process_queue(Queue *queue)
 {
     char *msg = queue_pop(queue);
     if (msg != NULL) {
-        cl_object receive_message = cl_eval(
-            c_string_to_object("(lambda (msg) (logic:receive-message msg))")
-        );
-
-        cl_object result = cl_funcall(
-            2,
-            receive_message,
-            ecl_make_simple_base_string(msg, strlen(msg))
-        );
-
-        ecl_print(result, ECL_T);
-        ecl_terpri(ECL_T);
-
+        lisp_receive_message(msg);
         freen(msg);
     }
+}
+
+char *lisp_get_card()
+{
+    cl_object result = cl_eval(
+        c_string_to_object("(logic:get-card)")
+    );
+
+    return (char*) result->base_string.self;
 }

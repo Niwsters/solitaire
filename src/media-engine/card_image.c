@@ -56,9 +56,10 @@ void init_card_images(SDL_Renderer *renderer)
 
 void destroy_cards()
 {
-    for (int suit=0; suit<4; suit++)
+    for (int suit=0; suit<4; suit++) {
     for (int value=0; value<13; value++)
         image_destroy(CARDS[suit][value]);
+    }
 
     SDL_DestroyTexture(TEXTURE);
 }

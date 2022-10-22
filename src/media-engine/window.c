@@ -12,18 +12,21 @@
 #include "card_image.h"
 #include "util.h"
 #include "image.h"
+#include "window_state.h"
+#include "sprite.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
+
+typedef struct Window Window;
+
+typedef void (*Callback)(Window*);
 
 typedef struct Window
 {
     SDL_Window *sdl_window;
     SDL_Renderer *sdl_renderer;
-    void (*callback)(struct Window*);
 } Window;
-
-typedef void (*Callback)(Window*);
 
 SDL_Renderer *window_renderer(Window *window)
 {
@@ -97,11 +100,15 @@ Window* window_create()
     window->sdl_renderer = create_renderer(window->sdl_window);
     puts("Renderer created");
 
+    init_card_images(window->sdl_renderer);
+    puts("Card images initialised");
+
     return window;
 }
 
 void window_destroy(Window* window)
 {
+    destroy_cards();
     SDL_DestroyRenderer(window->sdl_renderer);
     SDL_DestroyWindow(window->sdl_window);
     SDL_Quit();
@@ -114,38 +121,27 @@ void clear_screen(Window *window)
     SDL_RenderClear(window->sdl_renderer);
 }
 
-void window_start(Window *window)
+void window_render_image(Window *window, Image *image, int x, int y)
 {
-    init_card_images(window->sdl_renderer);
-
-    SDL_Event e;
-    bool quit = false;
-    while (quit == false)
-    {
-        char msg[128] = "none";
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
-                quit = true;
-            else if (e.type == SDL_MOUSEMOTION)
-            {
-                int x, y;
-                SDL_GetMouseState(&x, &y);
-            }
-        }
-
-        clear_screen(window);
-
-        window->callback(window);
-
-        SDL_RenderPresent(window->sdl_renderer);
-        SDL_Delay(1000/60);
-    }
-
-    destroy_cards();
+    image_render(window->sdl_renderer, image, x, y);
 }
 
-void window_on_render(Window *window, Callback callback)
+void window_update(Window *window, WindowState *state, Sprite *sprite)
 {
-    window->callback = callback;
+    SDL_Event e;
+    while (SDL_PollEvent(&e))
+    {
+        if (e.type == SDL_QUIT)
+            state->quit = true;
+        else if (e.type == SDL_MOUSEMOTION)
+        {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+        }
+    }
+
+    clear_screen(window);
+    window_render_image(window, sprite->image, sprite->x, sprite->y);
+    SDL_RenderPresent(window->sdl_renderer);
+    SDL_Delay(1000/60);
 }

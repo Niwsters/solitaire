@@ -1,6 +1,6 @@
 (defpackage :logic
   (:use :cl)
-  (:export :send-card :start-loop :read-input :receive-message))
+  (:export :send-card :start-loop :read-input :receive-message :get-card))
 (in-package :logic)
 
 (defun suit-to-num (suit)
@@ -61,3 +61,6 @@
 
 (defun receive-message (msg)
   (ignore-errors (eval (read-from-string msg))))
+
+(defun get-card ()
+  (coerce "1 10 50 50" 'base-string))

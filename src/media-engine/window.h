@@ -2,13 +2,15 @@
 #define WINDOW_H
 
 #include <SDL2/SDL.h>
+#include "window_state.h"
+#include "image.h"
+#include "sprite.h"
 
 typedef struct Window Window;
-typedef struct Callback Callback;
 Window* window_create();
 void window_destroy(Window* window);
-void window_start(Window *window);
-void window_on_render(Window *window, void (*callback)(Window*));
 SDL_Renderer *window_renderer(Window *window);
+void window_update(Window *window, WindowState *state, Sprite *sprite);
+void window_render_image(Window *window, Image *image, int x, int y);
 
 #endif
