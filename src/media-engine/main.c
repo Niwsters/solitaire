@@ -5,52 +5,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "app.h"
-#include "atom.h"
 #include "queue.h"
-
-void lisp_interpret_scanf()
-{
-    printf("> ");
-    char msg[128];
-
-    fgets(msg, 128, stdin);
-
-    cl_object result = cl_eval(c_string_to_object(msg));
-
-    ecl_print(result, ECL_T);
-    ecl_terpri(ECL_T);
-}
-
-void *lisp_loop(void *input)
-{
-    Queue *queue = (Queue*) input;
-
-    char msg[128];
-    while (true) {
-        printf("> ");
-        fgets(msg, 128, stdin);
-
-        msg[strlen(msg)-1] = '\0'; // trim the enter button
-
-        queue_add(queue, msg);
-    }
-
-    return NULL;
-}
-
-pthread_t lisp_start(Queue *queue)
-{
-    /*
-    extern void init_lisp(cl_object);
-    ecl_init_module(NULL, init_lisp);
-    */
-
-    pthread_t tid;
-    pthread_create(&tid, NULL, lisp_loop, queue);
-    return tid;
-}
+#include "lisp.h"
 
 int main (int argc, char **argv)
 {
@@ -59,7 +18,6 @@ int main (int argc, char **argv)
     extern void init_lisp(cl_object);
     ecl_init_module(NULL, init_lisp);
 
-    atom_run_tests();
     queue_run_tests();
 
     Queue *queue = queue_create();
