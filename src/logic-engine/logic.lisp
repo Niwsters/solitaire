@@ -1,6 +1,6 @@
 (defpackage :logic
   (:use :cl)
-  (:export :send-card :start-loop :read-input))
+  (:export :send-card :start-loop :read-input :receive-message))
 (in-package :logic)
 
 (defun suit-to-num (suit)
@@ -59,8 +59,5 @@
                         :if-does-not-exist nil)
     (format t "Read [~A]~%" (read-line fifo nil))))
 
-(defun start-loop ()
-  (loop
-;    (read-input)
-    (send-card :hearts :king)
-    (sleep 1/60)))
+(defun receive-message (msg)
+  (ignore-errors (eval (read-from-string msg))))

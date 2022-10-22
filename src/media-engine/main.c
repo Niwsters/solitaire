@@ -35,10 +35,6 @@ void *lisp_loop(void *input)
         msg[strlen(msg)-1] = '\0'; // trim the enter button
 
         queue_add(queue, msg);
-
-        for (int i=0; i<strlen(msg); i++) {
-            printf("%i, %i\n", msg[i], isspace(msg[i]));
-        }
     }
 
     return NULL;
@@ -59,6 +55,9 @@ pthread_t lisp_start(Queue *queue)
 int main (int argc, char **argv)
 {
     cl_boot(argc, argv);
+
+    extern void init_lisp(cl_object);
+    ecl_init_module(NULL, init_lisp);
 
     atom_run_tests();
     queue_run_tests();

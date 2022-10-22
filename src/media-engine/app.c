@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <math.h>
+#include <ecl/ecl.h>
+#include <ecl/external.h>
 
 #include "util.h"
 #include "image.h"
@@ -163,22 +165,30 @@ void app_start(App *app)
             {
                 int x, y;
                 SDL_GetMouseState(&x, &y);
-                printf("Mouse: %i, %i\n", x, y);
-                sprintf(msg, "mouse_moved %i %i", x, y);
             }
         }
 
         char *new_msg = queue_pop(app->queue);
         if (new_msg != NULL) {
-            Card *prev = card;
-            card = card_create(new_msg);
-            card_destroy(prev);
+            cl_object receive_message = cl_eval(
+                c_string_to_object("(lambda (msg) (logic:receive-message msg))")
+            );
+
+            cl_object result = cl_funcall(
+                2,
+                receive_message,
+                ecl_make_simple_base_string(new_msg, strlen(new_msg))
+            );
+
+            ecl_print(result, ECL_T);
+            ecl_terpri(ECL_T);
+
             freen(new_msg);
         }
 
         app_render(app, card);
 
-        sleep(1/60);
+        SDL_Delay(1000/60);
     }
 
     card_destroy(card);
