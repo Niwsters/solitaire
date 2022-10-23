@@ -1,8 +1,12 @@
 memcheck: compile valgrind
 dev: build-logic build-media-dev run
+build: build-logic build-media
 
 build-media:
-	gcc ./src/media-engine/*c -o ./bin/solitaire `sdl2-config --cflags --libs` -lSDL2_image -lm -pthread
+	gcc ./src/media-engine/*c -o ./bin/solitaire \
+	`sdl2-config --cflags --libs` -lSDL2_image -lm -pthread \
+	./src/logic-engine/liblogic.a \
+	`ecl-config --cflags --ldflags` -lecl
 
 build-media-dev:
 	gcc ./src/media-engine/*c -o ./bin/solitaire \
