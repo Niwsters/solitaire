@@ -52,10 +52,6 @@ List *parse(char *card_specs)
         token = strtok(NULL, delim);
     }
 
-    for (int i=0; i<list_length(list); i++) {
-        printf("List item: %s\n", list_get(list, i));
-    }
-
     return list;
 }
 
