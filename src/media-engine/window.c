@@ -14,6 +14,7 @@
 #include "image.h"
 #include "window_state.h"
 #include "sprite.h"
+#include "sprite_array.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -126,7 +127,7 @@ void window_render_image(Window *window, Image *image, int x, int y)
     image_render(window->sdl_renderer, image, x, y);
 }
 
-void window_update(Window *window, WindowState *state, Sprite **sprites, size_t sprite_count)
+void window_update(Window *window, WindowState *state, SpriteArray *sprites)
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))
@@ -142,9 +143,14 @@ void window_update(Window *window, WindowState *state, Sprite **sprites, size_t 
 
     clear_screen(window);
 
-    for (int i=0; i<sprite_count; i++) {
-        Sprite *sprite = sprites[i];
-        window_render_image(window, sprite->image, sprite->x, sprite->y);
+    for (int i=0; i<sprite_array_length(sprites); i++) {
+        Sprite *sprite = sprite_array_get(sprites, i);
+        window_render_image(
+            window,
+            sprite_image(sprite),
+            sprite_x(sprite),
+            sprite_y(sprite)
+        );
     }
 
     SDL_RenderPresent(window->sdl_renderer);

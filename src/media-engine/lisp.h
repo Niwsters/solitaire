@@ -4,9 +4,11 @@
 #include <pthread.h>
 
 #include "queue.h"
+#include "list.h"
+#include "card_array.h"
 
 pthread_t lisp_start(Queue *queue);
 void lisp_process_queue(Queue *queue);
-char *lisp_get_card_specs();
+CardArray *lisp_get_cards();
 
 #endif

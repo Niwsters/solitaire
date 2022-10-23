@@ -6,6 +6,8 @@
 
 #include "queue.h"
 #include "util.h"
+#include "list.h"
+#include "card_array.h"
 
 void *repl_loop(void *input)
 {
@@ -56,11 +58,34 @@ void lisp_process_queue(Queue *queue)
     }
 }
 
-char *lisp_get_card_specs()
+List *parse(char *card_specs)
+{
+    List *list = list_create();
+
+    const char *delim = ";";
+    char *token = strtok(card_specs, delim);
+    while (token != NULL)
+    {
+        list_add(list, token);
+        token = strtok(NULL, delim);
+    }
+
+    return list;
+}
+
+List *lisp_get_card_specs()
 {
     cl_object result = cl_eval(
         c_string_to_object("(logic:get-card)")
     );
 
-    return (char*) result->base_string.self;
+    return parse((char*) result->base_string.self);
+}
+
+CardArray *lisp_get_cards()
+{
+    List *specs = lisp_get_card_specs();
+    CardArray *card_array = card_array_from_specs(specs);
+    list_destroy(specs);
+    return card_array;
 }
