@@ -10,15 +10,18 @@
 #include "app.h"
 #include "queue.h"
 #include "lisp.h"
+#include "list.h"
 
 int main (int argc, char **argv)
 {
+    queue_run_tests();
+    list_run_tests();
+
     cl_boot(argc, argv);
 
     extern void init_lisp(cl_object);
     ecl_init_module(NULL, init_lisp);
 
-    queue_run_tests();
 
     Queue *queue = queue_create();
 

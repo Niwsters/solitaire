@@ -10,7 +10,7 @@ typedef struct Window Window;
 Window* window_create();
 void window_destroy(Window* window);
 SDL_Renderer *window_renderer(Window *window);
-void window_update(Window *window, WindowState *state, Sprite *sprite);
+void window_update(Window *window, WindowState *state, Sprite **sprites, size_t sprite_count);
 void window_render_image(Window *window, Image *image, int x, int y);
 
 #endif

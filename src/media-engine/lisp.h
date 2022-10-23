@@ -7,6 +7,6 @@
 
 pthread_t lisp_start(Queue *queue);
 void lisp_process_queue(Queue *queue);
-char *lisp_get_card();
+char *lisp_get_card_specs();
 
 #endif

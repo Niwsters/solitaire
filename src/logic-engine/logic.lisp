@@ -63,4 +63,6 @@
   (ignore-errors (eval (read-from-string msg))))
 
 (defun get-card ()
-  (coerce "1 10 50 50" 'base-string))
+  (coerce (concatenate 'string
+                       "1 10 50  50;"
+                       "0 4  200 200") 'base-string))

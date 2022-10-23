@@ -126,7 +126,7 @@ void window_render_image(Window *window, Image *image, int x, int y)
     image_render(window->sdl_renderer, image, x, y);
 }
 
-void window_update(Window *window, WindowState *state, Sprite *sprite)
+void window_update(Window *window, WindowState *state, Sprite **sprites, size_t sprite_count)
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))
@@ -141,7 +141,12 @@ void window_update(Window *window, WindowState *state, Sprite *sprite)
     }
 
     clear_screen(window);
-    window_render_image(window, sprite->image, sprite->x, sprite->y);
+
+    for (int i=0; i<sprite_count; i++) {
+        Sprite *sprite = sprites[i];
+        window_render_image(window, sprite->image, sprite->x, sprite->y);
+    }
+
     SDL_RenderPresent(window->sdl_renderer);
     SDL_Delay(1000/60);
 }

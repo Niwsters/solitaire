@@ -56,7 +56,7 @@ void lisp_process_queue(Queue *queue)
     }
 }
 
-char *lisp_get_card()
+char *lisp_get_card_specs()
 {
     cl_object result = cl_eval(
         c_string_to_object("(logic:get-card)")

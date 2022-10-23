@@ -205,7 +205,7 @@ void test_queue_multithreaded()
 
 void queue_run_tests()
 {
-    puts("Running Queue tests");
+    puts("Queue: Tests running");
 
     test_message();
     test_queue_create();
@@ -215,5 +215,5 @@ void queue_run_tests()
     test_queue_add_pop_add();
     test_queue_multithreaded();
 
-    puts("Queue tests finished");
+    puts("Queue: Tests finished");
 }
