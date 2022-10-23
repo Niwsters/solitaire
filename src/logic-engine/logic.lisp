@@ -34,5 +34,12 @@
                        "1 10 50  50;"
                        "0 4  200 200;") 'base-string))
 
+(defun str(&rest elems)
+  (loop for elem in elems
+    collect
+      (typecase elem
+        (string elem)
+        (otherwise (write-to-string elem)))))
+
 (defun mouse-moved (x y)
-  (concatenate 'string (write-to-string x) " " (write-to-string y)))
+  (str x y))
