@@ -65,4 +65,4 @@
 (defun get-card ()
   (coerce (concatenate 'string
                        "1 10 50  50;"
-                       "0 4  200 200") 'base-string))
+                       "0 4  200 200;") 'base-string))
