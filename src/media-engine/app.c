@@ -9,7 +9,6 @@
 #include "queue.h"
 #include "lisp.h"
 #include "window.h"
-#include "window_state.h"
 #include "list.h"
 #include "card_array.h"
 #include "sprite.h"
@@ -47,15 +46,15 @@ void app_start(App *app)
 {
     pthread_t tid = lisp_start(app->queue);
 
-    WindowState state = { false };
-
-    while (state.quit == false)
+    bool quit = false;
+    while (quit == false)
     {
         lisp_process_queue(app->queue);
 
         CardArray *cards = lisp_get_cards();
         SpriteArray *sprites = sprite_array_from_cards(cards);
-        window_update(app->window, &state, sprites);
+        window_update(app->window, &quit, sprites, app->queue);
+
         sprite_array_destroy(sprites);
         card_array_destroy(cards);
     }

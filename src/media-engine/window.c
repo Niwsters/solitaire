@@ -12,9 +12,9 @@
 #include "card_image.h"
 #include "util.h"
 #include "image.h"
-#include "window_state.h"
 #include "sprite.h"
 #include "sprite_array.h"
+#include "queue.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -127,17 +127,21 @@ void window_render_image(Window *window, Image *image, int x, int y)
     image_render(window->sdl_renderer, image, x, y);
 }
 
-void window_update(Window *window, WindowState *state, SpriteArray *sprites)
+void window_update(Window *window, bool *quit, SpriteArray *sprites, Queue *queue)
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
         if (e.type == SDL_QUIT)
-            state->quit = true;
+            *quit = true;
         else if (e.type == SDL_MOUSEMOTION)
         {
             int x, y;
             SDL_GetMouseState(&x, &y);
+
+            char msg[strlen("(logic:mouse-moved XXXX XXXX)")];
+            sprintf(msg, "(logic:mouse-moved %i %i)", x, y);
+            queue_add(queue, msg);
         }
     }
 

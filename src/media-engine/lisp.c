@@ -52,9 +52,10 @@ void lisp_receive_message(char *msg)
 void lisp_process_queue(Queue *queue)
 {
     char *msg = queue_pop(queue);
-    if (msg != NULL) {
+    while (msg != NULL) {
         lisp_receive_message(msg);
         freen(msg);
+        msg = queue_pop(queue);
     }
 }
 

@@ -19,7 +19,7 @@ build-logic:
 	rlwrap ecl -load ./src/logic-engine/compile.lisp
 
 run:
-	./bin/solitaire
+	rlwrap ./bin/solitaire
 
 valgrind: build
 	valgrind --gen-suppressions=all --suppressions=./linux_sdl.sup --leak-check=full --show-leak-kinds=all ./bin/solitaire

@@ -17,7 +17,7 @@ struct Message
 Message *message_create(char *content)
 {
     Message *message = malloc(sizeof(Message));
-    message->content = content;
+    message->content = str(content);
     message->next = NULL;
     return message;
 }
@@ -31,6 +31,7 @@ char *message_content(Message *message)
 
 void message_destroy(Message *message)
 {
+    freen(message->content);
     freen(message);
 }
 
@@ -79,9 +80,10 @@ char *queue_pop(Queue *queue)
 
         if (queue->next == NULL)
             queue->last = NULL;
+
+        message_destroy(message);
     }
 
-    message_destroy(message);
     pthread_mutex_unlock(&queue->mutex);
 
     return content;
@@ -143,19 +145,28 @@ void test_queue_pop_empty()
 void test_queue_add()
 {
     Queue *queue = queue_create();
-    queue_add(queue, "oh hi");
-    queue_add(queue, ":D");
-    queue_add(queue, "lolpan");
 
-    char *msg1 = queue_pop(queue);
-    char *msg2 = queue_pop(queue);
-    char *msg3 = queue_pop(queue);
-    assert(strcmp(msg1, "oh hi") == 0);
-    assert(strcmp(msg2, ":D") == 0);
-    assert(strcmp(msg3, "lolpan") == 0);
+    char *msg1 = str("oh hi");
+    char *msg2 = str(":D");
+    char *msg3 = str("lolpan");
+
+    queue_add(queue, msg1);
+    queue_add(queue, msg2);
+    queue_add(queue, msg3);
+
     freen(msg1);
     freen(msg2);
     freen(msg3);
+
+    char *result1 = queue_pop(queue);
+    char *result2 = queue_pop(queue);
+    char *result3 = queue_pop(queue);
+    assert(strcmp(result1, "oh hi") == 0);
+    assert(strcmp(result2, ":D") == 0);
+    assert(strcmp(result3, "lolpan") == 0);
+    freen(result1);
+    freen(result2);
+    freen(result3);
 
     queue_destroy(queue);
 }
