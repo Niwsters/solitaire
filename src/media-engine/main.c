@@ -25,8 +25,6 @@ int main (int argc, char **argv)
 
     Queue *queue = queue_create();
 
-    pthread_t tid = lisp_start(queue);
-
     App *app = app_create(queue);
     app_start(app);
     app_destroy(app);

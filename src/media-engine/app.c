@@ -57,6 +57,8 @@ List *parse(char *card_specs)
 
 void app_start(App *app)
 {
+    pthread_t tid = lisp_start(app->queue);
+
     WindowState state = { false };
 
     Sprite sprite = { card_image(0, 0), 0, 0 };
