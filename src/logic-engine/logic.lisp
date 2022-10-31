@@ -34,12 +34,18 @@
                        "1 10 50  50;"
                        "0 4  200 200;") 'base-string))
 
-(defun str(&rest elems)
-  (loop for elem in elems
-    collect
-      (typecase elem
-        (string elem)
-        (otherwise (write-to-string elem)))))
+(defun list-to-str (lst)
+  (format nil "~{~A~}" lst))
+
+(defun str (&rest elems)
+  (list-to-str
+    (loop for elem in elems
+      collect
+        (typecase elem
+          (string elem)
+          (otherwise (write-to-string elem))))))
+
+(defparameter state (make-hash-table))
 
 (defun mouse-moved (x y)
-  (str x y))
+  (setf (gethash 'mouse-pos state) (str x " " y)))
